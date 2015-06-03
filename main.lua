@@ -4,125 +4,88 @@
 --
 -----------------------------------------------------------------------------------------
 
--- INITIALIZATION
------------------------------------------------------------------
--- initialize display settings 
-display.setDefault ( "background", 1, 1, 1 )
-
--- initialize physics 
-local physics = require "physics"
-physics.start()
-physics.setGravity( 0, 0 ) -- deactivate gravity
--- physics.stop() to deactivate physics
-
------------------------------------------------------------------
---  1:32 ,  2:64 ,  3:96 ,  4:128 , 5:160 ,6:192 ,7:224 , 8:256 , 9:288 
--- 10:320, 11:352, 12:384, 13:416, 14:448  
-
 --[[
--- left board x
-local lbx  = { -4, 28, 60, 92, 124, 156, 188, 220, 252, 284, 316, 348, 380, 412, 444, 476, 508 }
--- right board x
-local rbx  = { 4, 36, 68, 100, 132, 164, 196, 228, 260, 292, 324, 356, 388, 424, 452, 484, 516 }
--- up board y
-local uby  = { 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512 }
--- down board y
-local dby  = {1}
+Need to add 
+
+[CHECK] ~ block movement ( horizontal // vertical ) 
+[CHECK] ~ collision with walls 
+~ pre-collision to prevent wall-sticking ( see if collision code works if pushed into wall again after 1st collision )
+  
+  if block.x + hsp would collide with wall, 
+    while block.x + hsp is not colliding with wall
+      block.x += sign ( hsp )
+
+LATER
+~ boolean checker that will prevent updating of velocity until it ( and all other blocks of its color ) have stopped moving 
+~ remove block from group that is colliding with another block and occupying the same space ( after velocities are 0 ) 
+
 --]]
 
+display.setDefault ( "background", 1, 1, 1 )
 
--- BLOCK
--- local BLOCK = 
+local board = { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480 }
+--[[
+local move_counter = 0
+local best_moves = 5
+local move_HUD = display.newText ( tostring( move_counter).." / "..tostring(best_moves), display.contentWidth / 2, display.contentHeight / 10, native.systemFont , 16 ) 
+move_HUD:setFillColor( 0, 0, 0 )
+--]]
+
+local blue_group = display.newGroup()
+local yellow_group = display.newGroup()
+
 local red_group = display.newGroup()
--- physics.addBody ( red_group, "dynamic", { friction = 0, bounce = 0 } )
+red_group.moving = false
+red_group.speed = 6
 
-local red_block = display.newImage ("Assets/red.png", 0, 32 ) 
-physics.addBody ( red_block, "dynamic", { friction = 0, bounce = 0 } )
-red_group:insert ( red_block )
+local red_block_a = display.newImage ("Assets/red.png", board[6], board[8] ) 
+red_block_a.moving = false
+red_block_a.hsp = 0
+red_block_a.vsp = 0
+red_block_a.speed = red_group.speed -- later create method that does this automatically, whenever an instance is created
+red_group:insert ( red_block_a )
 
-local red_block_two = display.newImage ("Assets/red.png", 64, 96 ) 
-physics.addBody ( red_block_two, "dynamic", { friction = 0, bounce = 0 } )
-red_group:insert ( red_block_two )
+
+local red_block_b = display.newImage ("Assets/red.png", board[8], board[6] ) 
+red_block_b.moving = false
+red_block_b.hsp = 0
+red_block_b.vsp = 0
+red_group:insert ( red_block_b  )
+  
+local red_block_c = display.newImage ("Assets/red.png", board[10], board[4] ) 
+red_block_c.moving = false
+red_block_c.hsp = 0
+red_block_c.vsp = 0
+red_group:insert ( red_block_c )
+
+local current_group = red_group
+--[[
+-- might have to pass in current group into the method with a getter
+
+local function getCurrentGroup ()
+  return current_group
+end
+
+--]]
+-- print ( tostring(red_group.numChildren ))
 
 local directional_arrow = display.newImage("Assets/directional_arrow.png", display.contentWidth, 48 )
 
 local function longest_vector ( init_x, event_x, init_y, event_y ) 
-  if ( math.abs( init_x - event_x ) > math.abs ( init_y - event_y ) ) then
-    return "x greater" -- x vector is longest
+  local x_difference = math.abs( init_x - event_x )
+  local y_difference = math.abs ( init_y - event_y )
+  if ( x_difference > y_difference ) then
+    if ( x_difference > 20 ) then -- prevents movement from tap
+      current_group.moving = true
+      return "x greater" -- x vector is longest
+    end
   else
-    return "y greater" -- y vector is longest 
-  end
-end
-
--- set velocity movement to all blocks of current chosen color
-local function setBlockMovement ( block_group, direction, velocity )
-  for i = 1, block_group.numChildren do
-    if ( direction == "x" ) then
-      block_group[i]:setLinearVelocity ( velocity, 0 )
-    elseif ( direction == "y" ) then
-      block_group[i]:setLinearVelocity ( 0, velocity )
+    if ( y_difference > 20 ) then -- prevents movement from tap
+      current_group.moving = true
+      return "y greater" -- y vector is longest 
     end
   end
 end
-
-
--- BLOCK MOVEMENT
-local initial_x = 0
-local initial_y = 0
-
-local function myTouchListener ( event )
-  if ( event.phase == "began" ) then
-  -- set initial x, y coordinates to where the tap first began 
-    initial_x = event.x
-    initial_y = event.y
-
-  elseif ( event.phase == "moved" ) then
-  -- code when the touch is moved over the object
-
-  elseif ( event.phase == "ended" ) then
-  -- code when touch is lifted off object
-    
-    -- find which direction has the greatest change in distance
-    local greater_length = longest_vector ( initial_x, event.x, initial_y, event.y )
-    
-    if ( greater_length == "x greater" ) then 
-      if ( initial_x > event.x ) then -- moving left
-        directional_arrow.rotation = 180
-        setBlockMovement ( red_group, "x", -450 )
-      elseif (initial_x < event.x) then -- moving right
-        directional_arrow.rotation = 0
-        setBlockMovement ( red_group, "x", 450 )
-      end
-    elseif (greater_length == "y greater" ) then
-      if ( initial_y > event.y ) then -- moving up
-        directional_arrow.rotation = 270
-        setBlockMovement ( red_group, "y", -450 )
-      elseif ( initial_y < event.y ) then -- moving down
-        directional_arrow.rotation = 90
-        setBlockMovement ( red_group, "y", 450 )
-        -- red_group:setLinearVelocity ( 0, 450 )
-      end
-    end 
-  end
-  return true --prevents touch propagation to underlying objects
-end
-
-Runtime: addEventListener( "touch", myTouchListener )
-
--- Tap on block --> selects that color
---[[
-
---]]
-
--- COLLISION HANDLER
-
- -- 15 elements
-local board = { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480 }
-
--- move all left x positions, by -4
--- move all right x positions by +4
--- move all up y positions by -4
--- move all down y positions by +4
 
 local function adjustWalls ( group, direction, value )
   if ( direction == "x" ) then
@@ -136,49 +99,289 @@ local function adjustWalls ( group, direction, value )
   end
 end
 
----[[
-
 local left_wall_group = display.newGroup()
-physics.addBody ( left_wall_group, "static" )
 
-local wall_left  = display.newImage ("Assets/wall_left.png",  board[1], board[2] )
-local wall_left_a  = display.newImage ("Assets/wall_left.png",  board[1], board[3] )
+local wall_left_a = display.newImage ("Assets/wall_horizontal.png",  board[6], board[4] )
+local wall_left_b = display.newImage ("Assets/wall_horizontal.png",  board[6], board[5] )
+local wall_left_c = display.newImage ("Assets/wall_horizontal.png",  board[6], board[6] )
+local wall_left_d = display.newImage ("Assets/wall_horizontal.png",  board[6], board[7] )
+local wall_left_e = display.newImage ("Assets/wall_horizontal.png",  board[6], board[8] )
 
-left_wall_group:insert( wall_left )
 left_wall_group:insert( wall_left_a )
+left_wall_group:insert( wall_left_b )
+left_wall_group:insert( wall_left_c )
+left_wall_group:insert( wall_left_d )
+left_wall_group:insert( wall_left_e )
 
-adjustWalls (left_wall_group, "x", -4 )
-
---]]
+adjustWalls (left_wall_group, "x", -18 )
 
 local top_wall_group = display.newGroup()
-local wall_top    = display.newImage ("Assets/wall_top.png", board[1], board[2] - 4 )
+
+local wall_top_a  = display.newImage ("Assets/wall_vertical.png", board[6], board[4] )
+local wall_top_b  = display.newImage ("Assets/wall_vertical.png", board[7], board[4] )
+local wall_top_c  = display.newImage ("Assets/wall_vertical.png", board[8], board[4] )
+local wall_top_d  = display.newImage ("Assets/wall_vertical.png", board[9], board[4] )
+local wall_top_e  = display.newImage ("Assets/wall_vertical.png", board[10], board[4] )
+
+top_wall_group:insert ( wall_top_a )
+top_wall_group:insert ( wall_top_b )
+top_wall_group:insert ( wall_top_c )
+top_wall_group:insert ( wall_top_d )
+top_wall_group:insert ( wall_top_e )
+
+adjustWalls (top_wall_group, "y", -18 )
 
 local right_wall_group = display.newGroup()
-physics.addBody ( right_wall_group, "static" )
 
-local wall_right = display.newImage ("Assets/wall_right.png", board[15] + 4, board[2] )
-right_wall_group:insert( wall_right )
+local wall_right_a = display.newImage ("Assets/wall_horizontal.png", board[10] , board[4] )
+local wall_right_b = display.newImage ("Assets/wall_horizontal.png", board[10] , board[5] )
+local wall_right_c = display.newImage ("Assets/wall_horizontal.png", board[10] , board[6] )
+local wall_right_d = display.newImage ("Assets/wall_horizontal.png", board[10] , board[7] )
+local wall_right_e = display.newImage ("Assets/wall_horizontal.png", board[10] , board[8] )
 
-adjustWalls (right_wall_group, "x", 4 )
+right_wall_group:insert( wall_right_a )
+right_wall_group:insert( wall_right_b )
+right_wall_group:insert( wall_right_c )
+right_wall_group:insert( wall_right_d )
+right_wall_group:insert( wall_right_e )
 
-local down_wall_group = display.newGroup()
-local wall_bottom  = display.newImage ("Assets/wall_bottom.png", board[1] , board[2] + 4 )
---[[
-local function onLocalCollision( self, event )
 
-    if ( event.phase == "began" ) then
-        print( self.myName .. ": collision began with " .. event.other.myName )
+adjustWalls (right_wall_group, "x", 18 )
 
-    elseif ( event.phase == "ended" ) then
-        print( self.myName .. ": collision ended with " .. event.other.myName )
-    end
+local bottom_wall_group = display.newGroup()
+local wall_bottom_a  = display.newImage ("Assets/wall_vertical.png", board[6] , board[8] )
+local wall_bottom_b  = display.newImage ("Assets/wall_vertical.png", board[7] , board[8] )
+local wall_bottom_c  = display.newImage ("Assets/wall_vertical.png", board[8] , board[8] )
+local wall_bottom_d  = display.newImage ("Assets/wall_vertical.png", board[9] , board[8] )
+local wall_bottom_e  = display.newImage ("Assets/wall_vertical.png", board[10] , board[8] )
+
+bottom_wall_group:insert ( wall_bottom_a )
+bottom_wall_group:insert ( wall_bottom_b )
+bottom_wall_group:insert ( wall_bottom_c )
+bottom_wall_group:insert ( wall_bottom_d )
+bottom_wall_group:insert ( wall_bottom_e )
+
+adjustWalls (bottom_wall_group, "y", 18 )
+
+local function checkLevelComplete ()
+  if ( red_group.numChildren <= 1 and blue_group.numChildren <= 1 and yellow_group.numChildren <= 1 ) then -- either 0 or 1 per color 
+    -- level complete!
+    -- print ("Level Complete")
+    -- nextLevel()
+    -- current_level = current_level + 1
+  end
 end
-red_group:addEventListener ( "collision", onLocalCollision )
---]]
---
---[[
 
---]]
+local function updateGroupMoving()
+  local checker = false
+  if ( current_group.moving ) then
+    for i = 1, current_group.numChildren do
+      if ( current_group[i].moving ) then -- a block is still moving
+        checker = true
+      end
+    end
+  end
+  return checker
+end
 
+local function checkCombine ( current_block ) 
+  if ( current_group.numChildren > 1 ) then
+    for i = 1, current_group.numChildren do
+      if ( current_group[i] ~= nil ) then -- prevents out of bounds array access
+        if ( current_group[i] ~= current_block ) then
+          --if (( not current_group[i].moving ) and ( not current_block.moving)) then -- necessary?
+          if ( current_group[i].x == current_block.x and current_group[i].y == current_block.y ) then
+            -- play animation // particle effect
+            current_group:remove( current_group[i] )
+            if (current_group.numChildren == 1 ) then
+              checkLevelComplete()
+            end
+          end
+          --end
+        end
+      end
+    end
+  end
+end
+
+-- rectangle-based collision detection ( From Corona webpage -- https://coronalabs.com/blog/2013/07/23/tutorial-non-physics-collision-detection/ )
+local function checkCollideLeft ( block, wall_group )
+  if ( block == nil ) then  --make sure the first object exists
+    return false
+  end
+  if ( wall_group == nil ) then  --make sure the other object exists
+    return false
+  end
+   
+  for i = 1, wall_group.numChildren do -- cycle through all walls of certain direction
+    -- local left  = wall_group.contentBounds.xMin <= block_group[i].contentBounds.xMin and wall_group.contentBounds.xMax >= block_group[i].contentBounds.xMin
+    local left = block.contentBounds.xMin + block.hsp <= wall_group[i].contentBounds.xMax
+    -- check if the next step will collide with a wall ( <-- moving left ) 
+    if ( left ) then 
+      while ( block.contentBounds.xMin > wall_group[i].contentBounds.xMax ) do
+        block.x = block.x - 1
+      end
+      return true
+    end
+  end
+end
+
+local function checkCollideRight ( block, wall_group )
+  if ( block == nil ) then  --make sure the first object exists
+    return false
+  end
+  if ( wall_group == nil ) then  --make sure the other object exists
+    return false
+  end
+   
+  for i = 1, wall_group.numChildren do -- cycle through all walls of certain direction
+    local right = block.contentBounds.xMax + block.hsp >= wall_group[i].contentBounds.xMin
+    -- block_group.contentBounds.xMin >= block_group[i].contentBounds.xMin and obj1.contentBounds.xMin <= block_group[i].contentBounds.xMax
+    
+    if ( right ) then
+      while ( block.contentBounds.xMax < wall_group[i].contentBounds.xMin ) do
+        block.x = block.x + 1
+      end
+      return true
+    end 
+  end
+end
+
+local function checkCollideTop ( block, wall_group )
+  if ( block == nil ) then  --make sure the first object exists
+    return false
+  end
+  if ( wall_group == nil ) then  --make sure the other object exists
+    return false
+  end
+   
+  for i = 1, wall_group.numChildren do -- cycle through all walls of certain direction
+    local top = block.contentBounds.yMin + block.vsp < wall_group[i].contentBounds.yMax
+    
+    if  ( top ) then
+      while ( block.contentBounds.yMin > wall_group[i].contentBounds.yMax ) do
+        block.y = block.y - 1
+      end
+      return true
+    end
+  end
+end
+
+local function checkCollideBottom ( block, wall_group )
+  if ( block == nil ) then  --make sure the first object exists
+    return false
+  end
+  if ( wall_group == nil ) then  --make sure the other object exists
+    return false
+  end
+   
+  for i = 1, wall_group.numChildren do -- cycle through all walls of certain direction
+    local bottom  = block.contentBounds.yMax + block.vsp > wall_group[i].contentBounds.yMin
+    if  ( bottom ) then
+      while ( block.contentBounds.yMax < wall_group[i].contentBounds.yMin ) do
+        block.y = block.y + 1
+      end
+      return true
+    end
+  end
+end
+
+
+--current_group = "red" || "blue" || "yellow"
+local function moveBlock ( event )
+
+  if ( current_group.moving ) then
+    for i = 1, current_group.numChildren do
+      if ( current_group[i] ~= nil ) then -- prevents out of bounds array access
+        if ( current_group[i].moving ) then 
+          if ( current_group[i].hsp > 0 ) then -- moving right   
+            if ( checkCollideRight ( current_group[i], right_wall_group ) ) then
+              current_group[i].hsp = 0
+              current_group[i].moving = false
+              checkCombine ( current_group[i] )
+              current_group.moving = updateGroupMoving()
+            end 
+          elseif ( current_group[i].hsp < 0 ) then -- moving left
+            if ( checkCollideLeft ( current_group[i], left_wall_group ) ) then
+              current_group[i].hsp = 0
+              current_group[i].moving = false
+              checkCombine ( current_group[i] )
+              current_group.moving = updateGroupMoving()
+            end
+          elseif ( current_group[i].vsp > 0 ) then -- moving down
+            if ( checkCollideBottom ( current_group[i], bottom_wall_group ) ) then
+              current_group[i].vsp = 0
+              current_group[i].moving = false
+              checkCombine ( current_group[i] )
+              current_group.moving = updateGroupMoving()
+            end
+          elseif ( current_group[i].vsp < 0 ) then -- moving up 
+            if ( checkCollideTop ( current_group[i], top_wall_group ) ) then
+              current_group[i].vsp = 0
+              current_group[i].moving = false
+              checkCombine ( current_group[i] )
+              current_group.moving = updateGroupMoving()
+            end
+          end
+        end
+        if (current_group[i] ~= nil ) then 
+          current_group[i].x = current_group[i].x + current_group[i].hsp
+          current_group[i].y = current_group[i].y + current_group[i].vsp
+        end
+      end
+    end
+  end
+end
+
+Runtime:addEventListener ( "enterFrame", moveBlock )
+
+-- BLOCK MOVEMENT
+local initial_x = 0
+local initial_y = 0
+
+local function myTouchListener ( event )
+  if ( not current_group.moving ) then
+    if ( event.phase == "began" ) then
+    -- set initial x, y coordinates to where the tap first began 
+      initial_x = event.x
+      initial_y = event.y
+    elseif ( event.phase == "ended" ) then -- code when touch is lifted off object
+      local greater_length = longest_vector ( initial_x, event.x, initial_y, event.y ) -- find which direction has the greatest change in distance
+      for i = 1, current_group.numChildren do
+        if ( greater_length == "x greater" ) then 
+          if ( initial_x > event.x ) then -- moving left
+            directional_arrow.rotation = 180
+            if (not current_group[i].moving ) then
+              current_group[i].hsp = -current_group.speed
+              current_group[i].moving = true
+            end
+          elseif (initial_x < event.x) then -- moving right
+            directional_arrow.rotation = 0
+            if (not current_group[i].moving ) then
+              current_group[i].hsp = current_group.speed
+              current_group[i].moving = true
+            end
+          end
+        elseif (greater_length == "y greater" ) then
+          if ( initial_y > event.y ) then -- moving up
+            directional_arrow.rotation = 270
+            if (not current_group[i].moving ) then
+              current_group[i].vsp = -current_group.speed
+              current_group[i].moving = true
+            end
+          elseif ( initial_y < event.y ) then -- moving down
+            directional_arrow.rotation = 90
+            if (not current_group[i].moving ) then
+              current_group[i].vsp = current_group.speed
+              current_group[i].moving = true
+            end
+          end
+        end
+      end
+    end
+    return true --prevents touch propagation to underlying objects
+  end
+end
+
+Runtime: addEventListener( "touch", myTouchListener )
 
