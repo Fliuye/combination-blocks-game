@@ -46,7 +46,6 @@ red_group.speed = 6
 
 local function createBlock ( x_pos, y_pos, color )
   local block = display.newRect ( x_pos, y_pos, block_width, block_height )
-  block:setFillColor( 1.0, 0.27, 0.27 ) 
   -- local block = display.newImage ("Assets/"..color.name.."_block.png", x_pos, y_pos ) 
   block.moving = false
   block.hsp = 0
@@ -54,20 +53,23 @@ local function createBlock ( x_pos, y_pos, color )
   block.speed = block_speed -- global speed for all blocks
 
   if ( color == "red" ) then
+    block:setFillColor( 1.0, 0.27, 0.27 ) 
     red_group:insert ( block )  
     -- print ("red.numChildren: "..tostring(red_group.numChildren))
   elseif ( color == "yellow" ) then
+    block:setFillColor( 1.0, 1.0, 0.33 ) 
     yellow_group:insert ( block )   
     -- print ("yellow.numChildren: "..tostring(yellow_group.numChildren))
   elseif ( color == "blue" ) then
+    block:setFillColor( 0.27, 0.27, 1.0 ) 
     blue_group:insert ( block ) 
     -- print ("blue.numChildren: "..tostring(blue_group.numChildren))
   end
 end 
 
 createBlock ( board[6], board[8], red )
-createBlock ( board[8], board[6], red )
-createBlock ( board[10], board[4], red )
+createBlock ( board[8], board[6], yellow )
+createBlock ( board[10], board[4], blue )
 
 --[[
 local red_block_a = display.newImage ("Assets/red_block.png", board[6], board[8] ) 
