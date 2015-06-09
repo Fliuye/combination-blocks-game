@@ -24,12 +24,18 @@ LATER
 display.setDefault ( "background", 1, 1, 1 )
 
 local board = { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480 }
+local block_width = 32  -- width in pixels of a block
+local block_height = 32 -- height in pixels of a block
 --[[
 local move_counter = 0
 local best_moves = 5
 local move_HUD = display.newText ( tostring( move_counter).." / "..tostring(best_moves), display.contentWidth / 2, display.contentHeight / 10, native.systemFont , 16 ) 
 move_HUD:setFillColor( 0, 0, 0 )
 --]]
+
+local red = "red"
+local blue = "blue"
+local yellow = "yellow"
 
 local blue_group = display.newGroup()
 local yellow_group = display.newGroup()
@@ -38,25 +44,52 @@ local red_group = display.newGroup()
 red_group.moving = false
 red_group.speed = 6
 
-local red_block_a = display.newImage ("Assets/red.png", board[6], board[8] ) 
+local function createBlock ( x_pos, y_pos, color )
+  local block = display.newRect ( x_pos, y_pos, block_width, block_height )
+  block:setFillColor( 1.0, 0.27, 0.27 ) 
+  -- local block = display.newImage ("Assets/"..color.name.."_block.png", x_pos, y_pos ) 
+  block.moving = false
+  block.hsp = 0
+  block.vsp = 0
+  block.speed = block_speed -- global speed for all blocks
+
+  if ( color == "red" ) then
+    red_group:insert ( block )  
+    -- print ("red.numChildren: "..tostring(red_group.numChildren))
+  elseif ( color == "yellow" ) then
+    yellow_group:insert ( block )   
+    -- print ("yellow.numChildren: "..tostring(yellow_group.numChildren))
+  elseif ( color == "blue" ) then
+    blue_group:insert ( block ) 
+    -- print ("blue.numChildren: "..tostring(blue_group.numChildren))
+  end
+end 
+
+createBlock ( board[6], board[8], red )
+createBlock ( board[8], board[6], red )
+createBlock ( board[10], board[4], red )
+
+--[[
+local red_block_a = display.newImage ("Assets/red_block.png", board[6], board[8] ) 
 red_block_a.moving = false
 red_block_a.hsp = 0
 red_block_a.vsp = 0
 red_block_a.speed = red_group.speed -- later create method that does this automatically, whenever an instance is created
 red_group:insert ( red_block_a )
 
-
-local red_block_b = display.newImage ("Assets/red.png", board[8], board[6] ) 
+local red_block_b = display.newImage ("Assets/red_block.png", board[8], board[6] ) 
 red_block_b.moving = false
 red_block_b.hsp = 0
 red_block_b.vsp = 0
 red_group:insert ( red_block_b  )
   
-local red_block_c = display.newImage ("Assets/red.png", board[10], board[4] ) 
+local red_block_c = display.newImage ("Assets/red_block.png", board[10], board[4] ) 
 red_block_c.moving = false
 red_block_c.hsp = 0
 red_block_c.vsp = 0
 red_group:insert ( red_block_c )
+
+--]]
 
 local current_group = red_group
 --[[
