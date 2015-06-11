@@ -1,5 +1,6 @@
 local C_block = require ( "C_block" )
--- local C_inputHandler = require ( "C_inputHandler" )
+local C_wall = require ( "C_wall" )
+local C_inputHandler = require ( "C_inputHandler" )
 
 -- global class
 local C_global = {}
@@ -31,11 +32,33 @@ end
 --]]
 
 -- BLOCK --
-C_global.createBlock = C_block.createBlock
+C_global.createRedBlock = C_block.createRedBlock
+C_global.createYellowBlock = C_block.createYellowBlock
+C_global.createBlueBlock = C_block.createBlueBlock
+
 C_global.createBlockGroup = C_block.createBlockGroup
 
+C_global.getRightWalls = C_block.getRightWalls
+C_global.getLeftWalls = C_block.getLeftWalls
+C_global.getBottomWalls = C_block.getBottomWalls
+C_global.getTopWalls = C_block.getTopWalls
+
+C_global.checkCollideRight = C_block.checkCollideRight
+C_global.checkCollideLeft = C_block.checkCollideLeft
+C_global.checkCollideBottom = C_block.checkCollideBottom
+C_global.checkCollideTop = C_block.checkCollideTop
+
+C_global.moveBlock = C_block.moveBlock
+
+-- WALL -- 
+C_global.createRightWall = C_wall.createRightWall
+C_global.createLeftWall = C_wall.createLeftWall
+C_global.createBottomWall = C_wall.createBottomWall
+C_global.createTopWall = C_wall.createTopWall
+
 -- INPUT HANDLER --
--- C_global.touchListener = C_inputHandler.touchListener
+C_global.getDirection = C_inputHandler.getDirection
+C_global.updateTouch = C_inputHandler.updateTouch
 
 return C_global
 

@@ -12,8 +12,11 @@ Additional Notes:
 --]]
 
 local composer = require( "composer" )
+local C_global = require( "C_global" )
 
 local scene = composer.newScene()
+
+-- create walls
 
 -- -----------------------------------------------------------------------------------------------------------------
 -- All code outside of the listener functions will only be executed ONCE unless "composer.removeScene()" is called.
