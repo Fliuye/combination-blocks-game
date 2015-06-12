@@ -5,31 +5,34 @@ local C_inputHandler = require ( "C_inputHandler" )
 -- global class
 local C_global = {}
 
--- myGlobal.BLOCK_WIDTH = 32
--- myGlobal.BLOCK_HEIGHT = 32
--- myGlobal.BLOCK_SPEED = 8 
-
 C_global.maxLevels = 50
 C_global.board = { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480 }
+C_global.options = { effect = "fade", time = 1200 }
 
-C_global.gameSettings = {}
-C_global.gameSettings.currentLevel = 1
-C_global.gameSettings.unlockedLevels = 1
+-- C_global.game = {}
+C_global.current_level = 1
+C_global.unlocked_levels = 1
 
-C_global.menuSettings = {}
-C_global.menuSettings.soundOn = true
-C_global.menuSettings.musicOn = true
+--C_global.menu = {}
+C_global.sound_on = true
+C_global.music_on = true
 
 C_global.levels = {}
 
 ---------------
 -- functions --
 ---------------
---[[
-myGlobal.getPrefix = function ( original_string )   
-  return original_string:sub (1, string.find( original_string, "_" ))
+C_global.checkLevelComplete = function ( master_block_group )
+  if ( master_block_group ~= nil ) then
+    local level_complete = true
+    for i = 1, master_block_group.numChildren do
+      if ( not ( master_block_group[i].numChildren <= 1) ) then
+        level_complete = false
+      end
+    end
+    return level_complete
+  end
 end
---]]
 
 -- BLOCK --
 C_global.createRedBlock = C_block.createRedBlock

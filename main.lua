@@ -1,27 +1,19 @@
-local myGlobal = require ( "C_global" )
+-- 1:50 pm
+
+local C_global = require ( "C_global" )
 local composer = require ( "composer" )
 
---[[
 -- go to level1, or last played level if resuming the device allows continued play
 -- composer.gotoScene ("level"..tostring( myGlobal.currentLevel ))
 
-local options = 
-{
-  effect = "fade", -- effects can be found -- https://docs.coronalabs.com/api/library/composer/gotoScene.html
-  time = 400, -- time duration of the effect
-  params = { -- parameters to be passed to the next scene
-    sampleVar1 = "string stuff"
-    sampleVar2 = 35
-  }
-}
+composer.gotoScene ("level"..tostring( C_global.current_level ), C_global.options )
 
--- composer.gotoScene (levelName, [ ,options ] ))
---]]
+-- display.setDefault ( "background", 1, 1, 1 )
 
-display.setDefault ( "background", 1, 1, 1 )
 
-local board = myGlobal.board
 --[[
+local board = myGlobal.board
+
 local move_counter = 0
 local best_moves = 5
 local move_HUD = display.newText ( tostring( move_counter).." / "..tostring(best_moves), display.contentWidth / 2, display.contentHeight / 10, native.systemFont , 16 ) 
@@ -29,7 +21,7 @@ move_HUD:setFillColor( 0, 0, 0 )
 
 -- local directional_arrow = display.newImage("Assets/directional_arrow.png", display.contentWidth, 48 )
 --]]
-
+--[[
 -- initialize function for creating block groups
 local createBlockGroup = myGlobal.createBlockGroup
 
@@ -55,6 +47,7 @@ yellow_group:insert( yBlock( board[8], board[6] ))
 blue_group:insert( bBlock( board[10], board[4] ))
 
 local current_group = red_group
+--]]
 -- current_group = getStartingColor( level.starting_color )
 --[[
 local getStartingColor = function ( color )
@@ -67,6 +60,7 @@ end
 --]]
 
 -- create the walls of the level!
+--[[
 local master_wall_group = display.newGroup()
 local horizontal_wall_group = display.newGroup()
 local vertical_wall_group = display.newGroup()
@@ -76,6 +70,8 @@ local lWall = myGlobal.createLeftWall -- add left wall
 local bWall = myGlobal.createBottomWall -- add bottom wall
 local tWall = myGlobal.createTopWall-- add top wall
 
+--]]
+--[[
 -- right walls
 horizontal_wall_group:insert( rWall( board[10], board[4] ))
 horizontal_wall_group:insert( rWall( board[10], board[5] ))
@@ -106,17 +102,22 @@ vertical_wall_group:insert( tWall( board[10], board[4] ))
 
 master_wall_group:insert( horizontal_wall_group )
 master_wall_group:insert( vertical_wall_group )
+--]]
 
+--[[
 local function updateMovement ()
   myGlobal.moveBlock ( current_group, master_wall_group )
 end
 
 Runtime:addEventListener( "enterFrame", updateMovement )
+--]] 
 
-local initial_x = 0
-local initial_y = 0
+-- local initial_x = 0
+-- local initial_y = 0
 
 -- chop it up to make the listener more independent
+--[[
+
 local function touchListener ( event )
   if ( not current_group.moving ) then
     if ( event.phase == "began" ) then
@@ -133,3 +134,5 @@ local function touchListener ( event )
 end
 
 Runtime: addEventListener( "touch", touchListener )
+--]]
+

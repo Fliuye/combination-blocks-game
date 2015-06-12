@@ -188,9 +188,11 @@ C_block.checkCombine = function ( current_block, current_group )
           if ( current_group[i].x == current_block.x and current_group[i].y == current_block.y ) then
             -- play animation // particle effect
             current_group:remove( current_group[i] )
+            --[[
             if (current_group.numChildren == 1 ) then
               C_block.checkLevelComplete( current_group.parent )
             end
+            --]]
           end
         end
       end
@@ -198,6 +200,7 @@ C_block.checkCombine = function ( current_block, current_group )
   end
 end
 --
+--[[
 C_block.checkLevelComplete = function ( master_block_group )
   if ( master_block_group ~= nil ) then
     local level_complete = true
@@ -209,13 +212,19 @@ C_block.checkLevelComplete = function ( master_block_group )
     
     if ( level_complete ) then
       print ("Level Complete")
-      -- C_global.current_level = C_global.current_level + 1
+      print ("current level: "..C_global.current_level)
+      C_global.current_level = C_global.current_level + 1
+      print ("new current level: "..C_global.current_level)
+      local options = { effect = "fade", time = 1200 }
+      
+      composer.gotoScene ("level"..tostring(C_global.current_level), options )
       -- unload current scene
       -- display win box
       -- go to next scene
     end
   end
 end
+--]]
 --
 C_block.updateGroupMoving = function ( current_group )
   local still_moving = false
