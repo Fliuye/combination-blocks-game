@@ -10,7 +10,7 @@ C_global.board = { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 4
 C_global.options = { effect = "fade", time = 1200 }
 
 -- C_global.game = {}
-C_global.current_level = 3
+C_global.current_level = 1
 C_global.unlocked_levels = 1
 
 --C_global.menu = {}

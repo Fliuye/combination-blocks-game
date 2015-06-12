@@ -94,8 +94,8 @@ end
 --
 local function createBlocks ()
   red_group:insert( rBlock( board[8], board[6] ))
-  blue_group:insert( bBlock( board[5], board[6] ))
-  blue_group:insert( bBlock( board[11], board[6] ))
+  blue_group:insert( bBlock( board[4], board[6] ))
+  blue_group:insert( bBlock( board[12], board[6] ))
   
   -- yellow_group:insert( yBlock( board[8], board[6] ))
   -- blue_group:insert( bBlock( board[10], board[4] ))

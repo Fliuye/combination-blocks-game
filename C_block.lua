@@ -73,18 +73,14 @@ C_block.getRightWalls = function ( block, master_block_group, wall_group )
     end
     -- check all blocks of other colors for potential collisions
     for i = 1, master_block_group.numChildren do 
-      print ( tostring(master_block_group[i].color ))
       if (master_block_group[i].color ~= block.color ) then
-        print ("checking group: "..tostring(master_block_group[i].color ))
         local color_group = master_block_group[i]
-        for j = 1, color_group.numChildren do
-          print ("number: "..tostring(j))
-          
--- FIX HERE!!!!          
-          if ((color_group[j].y > block.contentBounds.yMin ) and ( color_group[j].y < block.contentBounds.yMax )) then -- other colored block will intersect
-            table.insert(collisionTable, color_group[j])
-          end
--- FIX HERE!!!!                    
+        for j = 1, color_group.numChildren do       
+          if ( color_group[j].x > block.x ) then
+            if ((color_group[j].y > block.contentBounds.yMin ) and ( color_group[j].y < block.contentBounds.yMax )) then -- other colored block will intersect
+              table.insert(collisionTable, color_group[j])
+            end
+          end                
         end
       end
     end
@@ -96,7 +92,6 @@ C_block.getRightWalls = function ( block, master_block_group, wall_group )
   return block
 end
 
---
 C_block.getLeftWalls = function ( block, master_block_group, wall_group )
   if ( block.collisionTable == nil ) then -- first time through collision check
     local collisionTable = {}
@@ -112,8 +107,10 @@ C_block.getLeftWalls = function ( block, master_block_group, wall_group )
       if (master_block_group[i].color ~= block.color ) then
         local color_group = master_block_group[i]
         for j = 1, color_group.numChildren do
-          if ((color_group[j].y > block.contentBounds.yMin ) and ( color_group[j].y < block.contentBounds.yMax )) then -- other colored block will intersect
-            table.insert(collisionTable, color_group[j])
+          if ( color_group[i].x < block.x ) then
+            if ((color_group[j].y > block.contentBounds.yMin ) and ( color_group[j].y < block.contentBounds.yMax )) then -- other colored block will intersect
+              table.insert(collisionTable, color_group[j])
+            end
           end
         end
       end
@@ -126,7 +123,7 @@ C_block.getLeftWalls = function ( block, master_block_group, wall_group )
   return block
 end
 
---
+
 C_block.getTopWalls = function ( block, master_block_group, wall_group )
   if ( block.collisionTable == nil ) then -- first time through collision check
     local collisionTable = {}
@@ -142,8 +139,10 @@ C_block.getTopWalls = function ( block, master_block_group, wall_group )
       if (master_block_group[i].color ~= block.color ) then
         local color_group = master_block_group[i]
         for j = 1, color_group.numChildren do
-          if ((color_group[j].x > block.contentBounds.xMin ) and ( color_group[j].x < block.contentBounds.xMax )) then -- other colored block will intersect
-            table.insert(collisionTable, color_group[j])
+          if ( wall_group[i].y < block.y ) then
+            if ((color_group[j].x > block.contentBounds.xMin ) and ( color_group[j].x < block.contentBounds.xMax )) then -- other colored block will intersect
+              table.insert(collisionTable, color_group[j])
+            end
           end
         end
       end
@@ -156,7 +155,6 @@ C_block.getTopWalls = function ( block, master_block_group, wall_group )
   return block
 end
 
---
 C_block.getBottomWalls = function ( block, master_block_group, wall_group )
   if ( block.collisionTable == nil ) then -- first time through collision check
     local collisionTable = {}
@@ -172,8 +170,10 @@ C_block.getBottomWalls = function ( block, master_block_group, wall_group )
       if (master_block_group[i].color ~= block.color ) then
         local color_group = master_block_group[i]
         for j = 1, color_group.numChildren do
-          if ((color_group[j].x > block.contentBounds.xMin ) and ( color_group[j].x < block.contentBounds.xMax )) then -- other colored block will intersect
-            table.insert(collisionTable, color_group[j])
+          if ( wall_group[i].y > block.y ) then
+            if ((color_group[j].x > block.contentBounds.xMin ) and ( color_group[j].x < block.contentBounds.xMax )) then -- other colored block will intersect
+              table.insert(collisionTable, color_group[j])
+            end
           end
         end
       end
@@ -207,33 +207,6 @@ C_block.checkCombine = function ( current_block, current_group )
     end
   end
 end
---
-
---[[
-C_block.checkLevelComplete = function ( master_block_group )
-  if ( master_block_group ~= nil ) then
-    local level_complete = true
-    for i = 1, master_block_group.numChildren do
-      if ( not ( master_block_group[i].numChildren <= 1) ) then
-        level_complete = false
-      end
-    end
-    
-    if ( level_complete ) then
-      print ("Level Complete")
-      print ("current level: "..C_global.current_level)
-      C_global.current_level = C_global.current_level + 1
-      print ("new current level: "..C_global.current_level)
-      local options = { effect = "fade", time = 1200 }
-      
-      composer.gotoScene ("level"..tostring(C_global.current_level), options )
-      -- unload current scene
-      -- display win box
-      -- go to next scene
-    end
-  end
-end
---]]
 --
 C_block.updateGroupMoving = function ( current_group )
   local still_moving = false
@@ -286,7 +259,6 @@ C_block.checkCollideRight = function ( block )
     
     if ( right ) then
       while ( block.contentBounds.xMax < block.collisionTable[i].contentBounds.xMin ) do
-        print ("block: "..tostring(block).."collided"..tostring(block.collisionTable[i]))
         block.x = block.x + 1
       end
       C_block.emptyCollisionTable( block )
@@ -339,7 +311,7 @@ C_block.checkCollideBottom = function ( block )
     end
   end
 end
-
+--
 C_block.moveBlock = function ( block_group, master_wall_group )
   if ( block_group.moving ) then
     for i = 1, block_group.numChildren do
@@ -386,54 +358,5 @@ C_block.moveBlock = function ( block_group, master_wall_group )
   end
 end
 
-return C_block
 
---[[
-C_block.moveBlock = function ( block_group, wall_group )
-  if ( block_group.moving ) then
-    for i = 1, block_group.numChildren do
-      if ( block_group[i] ~= nil ) then -- prevents out of bounds array access
-        if ( block_group[i].moving ) then 
-          if ( block_group[i].hsp > 0 ) then -- moving right
-            -- local wall_group = getRightWalls()
-            if ( checkCollideRight ( block_group[i], wall_group ) ) then
-              block_group[i].hsp = 0
-              block_group[i].moving = false
-              checkCombine ( block_group[i] )
-              block_group.moving = updateGroupMoving()
-            end 
-          elseif ( block_group[i].hsp < 0 ) then -- moving left
-            -- local wall_group = getLeftWalls()
-            if ( checkCollideLeft ( block_group[i], wall_group ) ) then
-              block_group[i].hsp = 0
-              block_group[i].moving = false
-              checkCombine ( block_group[i] )
-              block_group.moving = updateGroupMoving()
-            end
-          elseif ( block_group[i].vsp > 0 ) then -- moving down
-            -- local wall_group = getBottomWalls()
-            if ( checkCollideBottom ( block_group[i], wall_group ) ) then
-              block_group[i].vsp = 0
-              block_group[i].moving = false
-              checkCombine ( block_group[i] )
-              block_group.moving = updateGroupMoving()
-            end
-          elseif ( block_group[i].vsp < 0 ) then -- moving up 
-            -- local wall_group = getTopWalls()
-            if ( checkCollideTop ( block_group[i], wall_group ) ) then
-              block_group[i].vsp = 0
-              block_group[i].moving = false
-              checkCombine ( block_group[i] )
-              block_group.moving = updateGroupMoving()
-            end
-          end
-        end
-        if (block_group[i] ~= nil ) then 
-          block_group[i].x = block_group[i].x + block_group[i].hsp
-          block_group[i].y = block_group[i].y + block_group[i].vsp
-        end
-      end
-    end
-  end
-end
---]]
+return C_block
