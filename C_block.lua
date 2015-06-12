@@ -7,6 +7,7 @@ C_block.WIDTH = 32
 C_block.HEIGHT = 32
 C_block.SPEED = 6
 
+--
 C_block.createBlockGroup = function ( color ) 
   local group = display.newGroup()
   group.color = color
@@ -14,10 +15,7 @@ C_block.createBlockGroup = function ( color )
   group.speed = C_block.SPEED
   return group
 end
-
-
-
-
+--
 C_block.createRedBlock = function ( x_pos, y_pos )
   local block = display.newRect ( x_pos, y_pos, C_block.WIDTH, C_block.HEIGHT )
   block.collsionGroup = {}
@@ -29,7 +27,7 @@ C_block.createRedBlock = function ( x_pos, y_pos )
   block:setFillColor( 1.0, 0.27, 0.27 ) 
   return block
 end 
-
+--
 C_block.createYellowBlock = function ( x_pos, y_pos )
   local block = display.newRect ( x_pos, y_pos, C_block.WIDTH, C_block.HEIGHT )
   block.collsionGroup = {}
@@ -41,7 +39,7 @@ C_block.createYellowBlock = function ( x_pos, y_pos )
   block:setFillColor( 1.0, 1.0, 0.33 ) 
   return block
 end 
-
+--
 C_block.createBlueBlock = function ( x_pos, y_pos )
   local block = display.newRect ( x_pos, y_pos, C_block.WIDTH, C_block.HEIGHT )
   block.collsionGroup = {}
@@ -54,9 +52,10 @@ C_block.createBlueBlock = function ( x_pos, y_pos )
   return block
 end 
 
+
 -- UTILITY --
 C_block.emptyCollisionTable = function ( block )
-  for i = 1, table.maxn(block.collisionTable) do
+  for i = 1, table.maxn( block.collisionTable ) do
     table.remove( block.collisionTable )
   end
   block.collisionTable = nil
@@ -74,12 +73,18 @@ C_block.getRightWalls = function ( block, master_block_group, wall_group )
     end
     -- check all blocks of other colors for potential collisions
     for i = 1, master_block_group.numChildren do 
+      print ( tostring(master_block_group[i].color ))
       if (master_block_group[i].color ~= block.color ) then
+        print ("checking group: "..tostring(master_block_group[i].color ))
         local color_group = master_block_group[i]
         for j = 1, color_group.numChildren do
+          print ("number: "..tostring(j))
+          
+-- FIX HERE!!!!          
           if ((color_group[j].y > block.contentBounds.yMin ) and ( color_group[j].y < block.contentBounds.yMax )) then -- other colored block will intersect
             table.insert(collisionTable, color_group[j])
           end
+-- FIX HERE!!!!                    
         end
       end
     end
@@ -91,6 +96,7 @@ C_block.getRightWalls = function ( block, master_block_group, wall_group )
   return block
 end
 
+--
 C_block.getLeftWalls = function ( block, master_block_group, wall_group )
   if ( block.collisionTable == nil ) then -- first time through collision check
     local collisionTable = {}
@@ -120,6 +126,7 @@ C_block.getLeftWalls = function ( block, master_block_group, wall_group )
   return block
 end
 
+--
 C_block.getTopWalls = function ( block, master_block_group, wall_group )
   if ( block.collisionTable == nil ) then -- first time through collision check
     local collisionTable = {}
@@ -149,6 +156,7 @@ C_block.getTopWalls = function ( block, master_block_group, wall_group )
   return block
 end
 
+--
 C_block.getBottomWalls = function ( block, master_block_group, wall_group )
   if ( block.collisionTable == nil ) then -- first time through collision check
     local collisionTable = {}
@@ -200,6 +208,7 @@ C_block.checkCombine = function ( current_block, current_group )
   end
 end
 --
+
 --[[
 C_block.checkLevelComplete = function ( master_block_group )
   if ( master_block_group ~= nil ) then
@@ -277,6 +286,7 @@ C_block.checkCollideRight = function ( block )
     
     if ( right ) then
       while ( block.contentBounds.xMax < block.collisionTable[i].contentBounds.xMin ) do
+        print ("block: "..tostring(block).."collided"..tostring(block.collisionTable[i]))
         block.x = block.x + 1
       end
       C_block.emptyCollisionTable( block )

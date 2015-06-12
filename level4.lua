@@ -1,13 +1,7 @@
 --[[
 Description: 
 
-Level Intention: Level 1 is an introduction to controls and goals. 
-The level is kept simple to provide a solution that has no failures.
-
-~ Teaches the player that horizontal movement is possible 
-
-Additional Notes: 
--- composer template from ~ https://docs.coronalabs.com/api/library/composer/index.html
+Level Intention: Level 3 
 
 --]]
 
@@ -20,7 +14,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------------------------------------
 
 -- local forward references should go here
-print ("welcome to level 1")
+print ("welcome to level 3")
 -- create references to variables
 local board 
 
@@ -50,13 +44,13 @@ local rBlock = C_global.createRedBlock
 local yBlock = C_global.createYellowBlock
 local bBlock = C_global.createBlueBlock
 
--- WALLS -- 
+-- WALLS --
 local rWall = C_global.createRightWall -- add right wall
 local lWall = C_global.createLeftWall -- add left wall
 local bWall = C_global.createBottomWall -- add bottom wall
 local tWall = C_global.createTopWall-- add top wall
 
--- Listeners --
+-- LISTENERS --
 local touchListener
 local updateMovement
 --
@@ -64,33 +58,36 @@ local updateMovement
 local function createWalls () 
   -- right walls
   horizontal_wall_group:insert( rWall( board[12], board[6] ))
+  horizontal_wall_group:insert( rWall( board[8], board[5] ))
+  horizontal_wall_group:insert( rWall( board[8], board[7] ))
   
   -- left walls
+  horizontal_wall_group:insert( lWall( board[8], board[5] ))
   horizontal_wall_group:insert( lWall( board[4], board[6] ))
+  horizontal_wall_group:insert( lWall( board[8], board[7] ))
 
-  -- bottom walls
+  -- bottom walls  
   vertical_wall_group:insert( bWall( board[4], board[6] ))
   vertical_wall_group:insert( bWall( board[5], board[6] ))
   vertical_wall_group:insert( bWall( board[6], board[6] ))
   vertical_wall_group:insert( bWall( board[7], board[6] ))
-  vertical_wall_group:insert( bWall( board[8], board[6] ))
   vertical_wall_group:insert( bWall( board[9], board[6] ))
   vertical_wall_group:insert( bWall( board[10], board[6] ))
   vertical_wall_group:insert( bWall( board[11], board[6] ))
   vertical_wall_group:insert( bWall( board[12], board[6] ))
-  -- vertical_wall_group:insert( bWall( board[13], board[6] ))
-  
+  vertical_wall_group:insert( bWall( board[8], board[7] ))
+
   -- top walls
+  vertical_wall_group:insert( tWall( board[8], board[5] ))
+
   vertical_wall_group:insert( tWall( board[4], board[6] ))
   vertical_wall_group:insert( tWall( board[5], board[6] ))
   vertical_wall_group:insert( tWall( board[6], board[6] ))
   vertical_wall_group:insert( tWall( board[7], board[6] ))
-  vertical_wall_group:insert( tWall( board[8], board[6] ))
   vertical_wall_group:insert( tWall( board[9], board[6] ))
   vertical_wall_group:insert( tWall( board[10], board[6] ))
   vertical_wall_group:insert( tWall( board[11], board[6] ))
   vertical_wall_group:insert( tWall( board[12], board[6] ))
-  -- vertical_wall_group:insert( tWall( board[13], board[6] ))
 
   master_wall_group:insert( horizontal_wall_group )
   master_wall_group:insert( vertical_wall_group )
@@ -98,8 +95,11 @@ end
 
 --
 local function createBlocks ()
-  red_group:insert( rBlock( board[4], board[6] ))
-  red_group:insert( rBlock( board[12], board[6] ))
+  red_group:insert( rBlock( board[8], board[5] ))
+  red_group:insert( rBlock( board[8], board[7] ))
+  blue_group:insert( bBlock( board[4], board[6] ))
+  blue_group:insert( bBlock( board[12], board[6] ))
+  
   -- yellow_group:insert( yBlock( board[8], board[6] ))
   -- blue_group:insert( bBlock( board[10], board[4] ))
   
