@@ -107,7 +107,7 @@ C_block.getLeftWalls = function ( block, master_block_group, wall_group )
       if (master_block_group[i].color ~= block.color ) then
         local color_group = master_block_group[i]
         for j = 1, color_group.numChildren do
-          if ( color_group[i].x < block.x ) then
+          if ( color_group[j].x < block.x ) then
             if ((color_group[j].y > block.contentBounds.yMin ) and ( color_group[j].y < block.contentBounds.yMax )) then -- other colored block will intersect
               table.insert(collisionTable, color_group[j])
             end
@@ -139,8 +139,9 @@ C_block.getTopWalls = function ( block, master_block_group, wall_group )
       if (master_block_group[i].color ~= block.color ) then
         local color_group = master_block_group[i]
         for j = 1, color_group.numChildren do
-          if ( wall_group[i].y < block.y ) then
+          if ( color_group[j].y < block.y ) then
             if ((color_group[j].x > block.contentBounds.xMin ) and ( color_group[j].x < block.contentBounds.xMax )) then -- other colored block will intersect
+              print ("top insert: "..tostring ( color_group[j].color ))
               table.insert(collisionTable, color_group[j])
             end
           end
@@ -170,7 +171,7 @@ C_block.getBottomWalls = function ( block, master_block_group, wall_group )
       if (master_block_group[i].color ~= block.color ) then
         local color_group = master_block_group[i]
         for j = 1, color_group.numChildren do
-          if ( wall_group[i].y > block.y ) then
+          if ( color_group[j].y > block.y ) then
             if ((color_group[j].x > block.contentBounds.xMin ) and ( color_group[j].x < block.contentBounds.xMax )) then -- other colored block will intersect
               table.insert(collisionTable, color_group[j])
             end
@@ -188,7 +189,7 @@ end
 
 
 --
-C_block.checkCombine = function ( current_block, current_group ) 
+C_block.checkCombine = function ( current_block, current_group )
   if ( current_group.numChildren > 1 ) then
     for i = 1, current_group.numChildren do
       if ( current_group[i] ~= nil ) then -- prevents out of bounds array access
@@ -222,28 +223,6 @@ end
 --
 
 -- COLLISION --
-C_block.checkCollideLeft = function ( block )
-  if ( block == nil ) then  --make sure the first object exists
-    return false
-  elseif ( block.collisionTable == nil ) then
-    return false
-  elseif (block.collisionTable[1] == "no_wall" ) then
-    -- if block moves off screen, stop checking collisions
-    return false
-  end 
-   
-  for i = 1, table.maxn(block.collisionTable) do
-    local left = block.contentBounds.xMin + block.hsp <= block.collisionTable[i].contentBounds.xMax
-    if ( left ) then 
-      while ( block.contentBounds.xMin > block.collisionTable[i].contentBounds.xMax ) do
-        block.x = block.x - 1
-      end
-      C_block.emptyCollisionTable( block )
-      return true
-    end
-  end
-end
-
 C_block.checkCollideRight = function ( block )
   if ( block == nil ) then  --make sure the first object exists
     return false
@@ -264,6 +243,29 @@ C_block.checkCollideRight = function ( block )
       C_block.emptyCollisionTable( block )
       return true
     end 
+  end
+end
+
+C_block.checkCollideLeft = function ( block )
+  if ( block == nil ) then  --make sure the first object exists
+    return false
+  elseif ( block.collisionTable == nil ) then
+    return false
+  elseif (block.collisionTable[1] == "no_wall" ) then
+    -- if block moves off screen, stop checking collisions
+    return false
+  end 
+   
+  for i = 1, table.maxn(block.collisionTable) do
+    local left = block.contentBounds.xMin + block.hsp <= block.collisionTable[i].contentBounds.xMax
+    
+    if ( left ) then 
+      while ( block.contentBounds.xMin > block.collisionTable[i].contentBounds.xMax ) do
+        block.x = block.x - 1
+      end
+      C_block.emptyCollisionTable( block )
+      return true
+    end
   end
 end
 

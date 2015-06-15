@@ -53,6 +53,7 @@ local tWall = C_global.createTopWall-- add top wall
 -- LISTENERS --
 local touchListener
 local updateMovement
+local selectColorListener
 --
 
 local function createWalls () 
@@ -107,6 +108,28 @@ local function createBlocks ()
   blue_group:insert( bBlock( board[8], board[3] ))
   blue_group:insert( bBlock( board[8], board[9] ))
   
+  if ( red_group.numChildren >= 1 ) then
+    print ( "RED" )
+    for i = 1, red_group.numChildren do
+      red_group[i]:addEventListener ("tap", selectColorListener ) 
+      print ( "change to red" )
+    end
+  end
+  
+  if ( yellow_group.numChildren >= 1 ) then
+    for j = 1, yellow_group.numChildren do
+      yellow_group[j]:addEventListener ("tap", selectColorListener ) 
+      print ( "change to yellow" )
+    end
+  end
+    
+  if ( blue_group.numChildren >= 1 ) then
+    for k = 1, blue_group.numChildren do
+      blue_group[k]:addEventListener ("tap", selectColorListener ) 
+      print ( "change to blue" )
+    end
+  end
+  
   -- yellow_group:insert( yBlock( board[8], board[6] ))
   -- blue_group:insert( bBlock( board[10], board[4] ))
   
@@ -146,13 +169,6 @@ function scene:create( event )
 
   local sceneGroup = self.view
 
--- CREATE WALLS --
-  createWalls()
-  sceneGroup:insert( master_wall_group )
-  
--- CREATE BLOCKS --
-  createBlocks()
-  sceneGroup:insert( master_block_group )
 -- INITIALIZE LISTENERS -- 
   touchListener = function ( event )
     if ( not current_group.moving ) then
@@ -188,6 +204,26 @@ function scene:create( event )
   end
 
   Runtime:addEventListener( "enterFrame", updateMovement )
+  
+  selectColorListener = function ( event ) 
+    if ( current_group.color ~= event.target.color ) then
+      for i = 1, master_block_group.numChildren do
+        if ( master_block_group[i].color == event.target.color ) then
+          print ( "changing group" )
+          current_group = master_block_group[i]
+        end
+      end
+    end
+  end
+  
+  -- CREATE WALLS --
+  createWalls()
+  sceneGroup:insert( master_wall_group )
+  
+-- CREATE BLOCKS --
+  createBlocks()
+  sceneGroup:insert( master_block_group )
+  
 end
 
 
