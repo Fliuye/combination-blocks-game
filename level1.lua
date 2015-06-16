@@ -49,6 +49,9 @@ local createBlockGroup = C_global.createBlockGroup
 local rBlock = C_global.createRedBlock
 local yBlock = C_global.createYellowBlock
 local bBlock = C_global.createBlueBlock
+local restartBlock = C_global.createRestartBlock
+local previousBlock = C_global.createPreviousBlock
+local nextBlock = C_global.createNextBlock
 
 -- WALLS -- 
 local rWall = C_global.createRightWall -- add right wall
@@ -60,6 +63,9 @@ local tWall = C_global.createTopWall-- add top wall
 local selectColorListener
 local touchListener
 local updateMovement
+local restartLevelListener
+local previousLevelListener
+local nextLevelListener
 --
 
 local function createWalls () 
@@ -104,6 +110,18 @@ local function createBlocks ()
   -- yellow_group:insert( yBlock( board[8], board[6] ))
   -- blue_group:insert( bBlock( board[10], board[4] ))
   
+  local restart_level_button = restartBlock( board[8], board[2] )
+  local previous_level_button = previousBlock( board[1], board[2] )
+  local next_level_button = nextBlock( board[16], board[2] )
+  
+  restart_level_button:addEventListener( "tap", restartLevelListener )
+  previous_level_button:addEventListener( "tap", previousLevelListener )
+  next_level_button:addEventListener( "tap", nextLevelListener )
+  
+  scene.view:insert ( restart_level_button )
+  scene.view:insert ( previous_level_button )
+  scene.view:insert ( next_level_button )
+  
   if ( red_group.numChildren >= 1 ) then
     print ( "RED" )
     for i = 1, red_group.numChildren do
@@ -125,7 +143,6 @@ local function createBlocks ()
       print ( "change to blue" )
     end
   end
-  
   
   master_block_group:insert ( red_group ) 
   master_block_group:insert ( yellow_group ) 
@@ -189,6 +206,14 @@ function scene:create( event )
         print ("current level: "..tostring(C_global.current_level))
         C_global.current_level = C_global.current_level + 1
         print ("new current level: "..tostring(C_global.current_level).."\n")
+        
+        --[[
+        if ( composer.getScene(( "level"..tostring(C_global.current_level)) ~= nil )) then
+           print ( "removing scene, visited before" )
+           composer.removeScene ( "level"..tostring(C_global.current_level ))
+        end
+        --]]
+        
         composer.gotoScene ("level"..tostring(C_global.current_level), C_global.options )
         -- unload current scene
         -- display win box
@@ -210,6 +235,29 @@ function scene:create( event )
     end
   end
   
+  
+  restartLevelListener = function ()
+    composer.gotoScene ("level_restart", options )
+  end
+  
+  previousLevelListener = function ()
+    if ( C_global.current_level > 1 ) then
+      C_global.current_level = C_global.current_level - 1
+      composer.gotoScene ("level"..tostring(C_global.current_level), C_global.options )
+      -- options should pass to level restart, where it gives the current scene
+      -- and scene to move towards
+    end
+  end
+  
+  nextLevelListener = function ()
+    if ( C_global.current_level < C_global.max_levels ) then
+      C_global.current_level = C_global.current_level + 1
+      composer.gotoScene ("level"..tostring(C_global.current_level), C_global.options )
+      -- options should pass to level restart, where it gives the current scene
+      -- and scene to move towards
+    end
+  end
+
 -- CREATE WALLS --
   createWalls()
   sceneGroup:insert( master_wall_group )
@@ -247,7 +295,6 @@ function scene:hide( event )
     elseif ( phase == "did" ) then
     end
 end
-
 
 -- "scene:destroy()"
 function scene:destroy( event )

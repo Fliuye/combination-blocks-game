@@ -5,13 +5,13 @@ local C_inputHandler = require ( "C_inputHandler" )
 -- global class
 local C_global = {}
 
-C_global.maxLevels = 50
 C_global.board = { 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480 }
 C_global.options = { effect = "fade", time = 1200 }
 
 -- C_global.game = {}
 C_global.current_level = 1
 C_global.unlocked_levels = 1
+C_global.max_levels = 50
 
 --C_global.menu = {}
 C_global.sound_on = true
@@ -38,6 +38,10 @@ end
 C_global.createRedBlock = C_block.createRedBlock
 C_global.createYellowBlock = C_block.createYellowBlock
 C_global.createBlueBlock = C_block.createBlueBlock
+C_global.createRestartBlock = C_block.createRestartBlock
+C_global.createPreviousBlock = C_block.createPreviousBlock
+C_global.createNextBlock = C_block.createNextBlock
+
 
 C_global.createBlockGroup = C_block.createBlockGroup
 

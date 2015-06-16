@@ -1,7 +1,7 @@
 --[[
 Description: 
 
-Level Intention: Level 4
+Level Intention: Level 4 
 
 --]]
 
@@ -43,6 +43,7 @@ local createBlockGroup = C_global.createBlockGroup
 local rBlock = C_global.createRedBlock
 local yBlock = C_global.createYellowBlock
 local bBlock = C_global.createBlueBlock
+local restartBlock = C_global.createRestartBlock
 
 -- WALLS --
 local rWall = C_global.createRightWall -- add right wall
@@ -53,29 +54,31 @@ local tWall = C_global.createTopWall-- add top wall
 -- LISTENERS --
 local touchListener
 local updateMovement
+local selectColorListener
+local restartLevelListener
+local previousLevelListener
+local nextLevelListener
 --
 
 local function createWalls () 
   -- right walls
   horizontal_wall_group:insert( rWall( board[12], board[6] ))
   horizontal_wall_group:insert( rWall( board[8], board[5] ))
-  horizontal_wall_group:insert( rWall( board[8], board[7] ))
   
   -- left walls
-  horizontal_wall_group:insert( lWall( board[8], board[5] ))
   horizontal_wall_group:insert( lWall( board[4], board[6] ))
-  horizontal_wall_group:insert( lWall( board[8], board[7] ))
+  horizontal_wall_group:insert( lWall( board[8], board[5] ))
 
   -- bottom walls  
   vertical_wall_group:insert( bWall( board[4], board[6] ))
   vertical_wall_group:insert( bWall( board[5], board[6] ))
   vertical_wall_group:insert( bWall( board[6], board[6] ))
   vertical_wall_group:insert( bWall( board[7], board[6] ))
+  vertical_wall_group:insert( bWall( board[8], board[6] ))
   vertical_wall_group:insert( bWall( board[9], board[6] ))
   vertical_wall_group:insert( bWall( board[10], board[6] ))
   vertical_wall_group:insert( bWall( board[11], board[6] ))
   vertical_wall_group:insert( bWall( board[12], board[6] ))
-  vertical_wall_group:insert( bWall( board[8], board[7] ))
 
   -- top walls
   vertical_wall_group:insert( tWall( board[8], board[5] ))
@@ -95,13 +98,17 @@ end
 
 --
 local function createBlocks ()
-  red_group:insert( rBlock( board[8], board[7] ))
-  red_group:insert( rBlock( board[4], board[6] ))
-  blue_group:insert( bBlock( board[8], board[5] ))
+  red_group:insert( rBlock( board[8], board[6] ))
+  blue_group:insert( bBlock( board[4], board[6] ))
   blue_group:insert( bBlock( board[12], board[6] ))
   
-  current_group = red_group
-  print ( red_group.numChildren )
+  local restart_block = restartBlock( board[16], board[2] )
+  restart_block:addEventListener( "tap", restartLevelListener )
+  scene.view:insert ( restart_block )
+  
+  -- current_group = red_group
+  print ("hi!")
+  print(tostring(red_group.numChildren))
   if ( red_group.numChildren >= 1 ) then
     print ( "RED" )
     for i = 1, red_group.numChildren do
@@ -109,19 +116,24 @@ local function createBlocks ()
       print ( "change to red" )
     end
   end
-  
+  print ("hi2!")
+    print (tostring(yellow_group.numChildren))
   if ( yellow_group.numChildren >= 1 ) then
-    for j = 1, yellow_group.numChildren do
-      yellow_group[j]:addEventListener ("tap", selectColorListener ) 
+    print ( "YELLOW" )
+    for i = 1, yellow_group.numChildren do
+      yellow_group[i]:addEventListener ("tap", selectColorListener ) 
       print ( "change to yellow" )
     end
   end
-    
+  print ("hi3!")
+  print (tostring(blue_group.numChildren))
   if ( blue_group.numChildren >= 1 ) then
-    for k = 1, blue_group.numChildren do
-      blue_group[k]:addEventListener ("tap", selectColorListener ) 
+    print ( "BLUE" )
+    for i = 1, blue_group.numChildren do
+      blue_group[i]:addEventListener ("tap", selectColorListener ) 
       print ( "change to blue" )
     end
+    print( "end block creation" )
   end
   
   -- yellow_group:insert( yBlock( board[8], board[6] ))
@@ -151,7 +163,8 @@ function scene:create( event )
   red_group = createBlockGroup ( "red" ) 
   yellow_group = createBlockGroup ( "yellow" ) 
   blue_group = createBlockGroup ( "blue" ) 
-  -- current_group = red_group
+  current_group = red_group
+  print ("created groups")
 
   -- WALL RELATED --
   master_wall_group = display.newGroup()
@@ -180,7 +193,7 @@ function scene:create( event )
   end
   Runtime:addEventListener( "touch", touchListener )
   
-  updateMovement = function  ()
+  updateMovement = function ()
     C_global.moveBlock ( current_group, master_wall_group )
     if ( current_group.numChildren == 1 ) then
       if (C_global.checkLevelComplete( master_block_group )) then 
@@ -197,16 +210,23 @@ function scene:create( event )
     end
   end
   Runtime:addEventListener( "enterFrame", updateMovement )
-    
+ 
   selectColorListener = function ( event ) 
-    if ( current_group.color ~= event.target.color ) then
+    print( "tap" )
+    print ("current_group_color: "..current_group.color.." | touched color: "..event.target.color )
+    if ( current_group.color ~= event.target.color ) then      
       for i = 1, master_block_group.numChildren do
+        print ("check "..tostring(master_block_group[i].color))
         if ( master_block_group[i].color == event.target.color ) then
-          print ( "changing group" )
+          print ( "changing group to: "..tostring( master_block_group[i].color ))
           current_group = master_block_group[i]
         end
       end
     end
+  end
+  
+  restartLevelListener = function ()
+    composer.gotoScene ("level_restart", options )
   end
   
 -- CREATE WALLS --

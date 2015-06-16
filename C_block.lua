@@ -53,6 +53,27 @@ C_block.createBlueBlock = function ( x_pos, y_pos )
 end 
 
 
+
+
+--
+C_block.createRestartBlock = function ( x_pos, y_pos )
+  local block = display.newRect ( x_pos, y_pos, C_block.WIDTH, C_block.HEIGHT )
+  block.color = "black"
+  block:setFillColor( 0.0, 0.0, 0.0 ) 
+  return block
+end 
+
+--
+C_block.createPreviousBlock = function ( x_pos, y_pos )
+  local block = display.newImage( "Assets/previous_button.png", x_pos, y_pos, C_block.WIDTH, C_block.HEIGHT )
+  return block
+end 
+--
+C_block.createNextBlock = function ( x_pos, y_pos )
+   local block = display.newImage( "Assets/next_button.png", x_pos, y_pos, C_block.WIDTH, C_block.HEIGHT )
+  return block
+end 
+
 -- UTILITY --
 C_block.emptyCollisionTable = function ( block )
   for i = 1, table.maxn( block.collisionTable ) do
